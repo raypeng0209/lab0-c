@@ -30,12 +30,8 @@ void q_free(struct list_head *head)
         return;
 
     element_t *el, *els;
-    list_for_each_entry_safe (el, els, head, list) {
-        if (el->value)
-            free(el->value);
-        list_del(&el->list);
-        free(el);
-    }
+    list_for_each_entry_safe (el, els, head, list)
+        q_release_element(el);
     free(head);
 }
 
@@ -135,10 +131,7 @@ bool q_delete_mid(struct list_head *head)
 
     list_for_each_entry (el, head, list) {
         if (mid_idx == i++) {
-            list_del(&el->list);
-            if (el->value)
-                free(el->value);
-            free(el);
+            q_release_element(el);
             return true;
         }
     }
