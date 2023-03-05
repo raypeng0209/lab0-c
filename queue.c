@@ -105,7 +105,6 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     el = list_last_entry(head, element_t, list);
     if (sp)
         strlcpy(sp, el->value, bufsize);
-
     list_del(&el->list);
 
     return el;
@@ -140,6 +139,7 @@ bool q_delete_mid(struct list_head *head)
 
     list_for_each_entry (el, head, list) {
         if (mid_idx == i++) {
+            list_del(&el->list);
             q_release_element(el);
             return true;
         }
