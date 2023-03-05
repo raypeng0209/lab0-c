@@ -20,6 +20,25 @@ static void node_swap(struct list_head *head,
     node1->prev = node1->prev->next = node2;
 }
 
+static bool node_insert(struct list_head *head, char *s, bool to_head)
+{
+    if (!head || !s)
+        return false;
+
+    element_t *el = NULL;
+    /* Retry malloc if failed */
+    while (!(el = malloc(sizeof(element_t)))) {
+    }
+    while (!(el->value = strdup(s))) {
+    }
+
+    if (to_head)
+        list_add(&el->list, head);
+    else
+        list_add_tail(&el->list, head);
+    return true;
+}
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -47,37 +66,13 @@ void q_free(struct list_head *head)
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
-    element_t *el = NULL;
-
-    if (!head || !s)
-        return false;
-
-    el = malloc(sizeof(element_t));
-    if (!el)
-        return false;
-
-    el->value = strdup(s);
-    list_add(&el->list, head);
-
-    return true;
+    return node_insert(head, s, true);
 }
 
 /* Insert an element at tail of queue */
 bool q_insert_tail(struct list_head *head, char *s)
 {
-    element_t *el = NULL;
-
-    if (!head || !s)
-        return false;
-
-    el = malloc(sizeof(element_t));
-    if (!el)
-        return false;
-
-    el->value = strdup(s);
-    list_add_tail(&el->list, head);
-
-    return true;
+    return node_insert(head, s, false);
 }
 
 /* Remove an element from head of queue */
