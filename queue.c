@@ -39,6 +39,14 @@ static bool node_insert(struct list_head *head, char *s, bool to_head)
     return true;
 }
 
+static void node_delete(element_t *el)
+{
+    if (!el)
+        return;
+    list_del(&el->list);
+    q_release_element(el);
+}
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -134,8 +142,7 @@ bool q_delete_mid(struct list_head *head)
 
     list_for_each_entry (el, head, list) {
         if (mid_idx == i++) {
-            list_del(&el->list);
-            q_release_element(el);
+            node_delete(el);
             return true;
         }
     }
@@ -147,6 +154,28 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    if (!head || list_empty(head) || list_is_singular(head))
+        return false;
+
+    element_t *el = NULL;
+    element_t *el_next = NULL;
+    element_t *el_tmp;
+    list_for_each_entry (el, head, list) {
+        el_next = list_entry(el->list.next, element_t, list);
+        if (&el_next->list != head && !strcmp(el->value, el_next->value)) {
+            while (&el_next->list != head &&
+                   !strcmp(el->value, el_next->value)) {
+                node_delete(el_next);
+                el_next = list_entry(el->list.next, element_t, list);
+            }
+            el_tmp = el;
+            el = list_entry(el->list.next, element_t, list);
+            node_delete(el_tmp);
+
+            if (&el->list == head)
+                break;
+        }
+    }
     return true;
 }
 
