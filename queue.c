@@ -10,6 +10,15 @@
  *   cppcheck-suppress nullPointer
  */
 
+static void node_swap(struct list_head *head,
+                      struct list_head *node1,
+                      struct list_head *node2)
+{
+    node1->next = node2->next;
+    node2->next = node2->next->prev = node1;
+    node2->prev = node1->prev;
+    node1->prev = node1->prev->next = node2;
+}
 
 /* Create an empty queue */
 struct list_head *q_new()
@@ -150,6 +159,17 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *curr;
+    list_for_each (curr, head) {
+        if (curr->next == head) {
+            head->prev = curr;
+            break;
+        }
+        node_swap(head, curr, curr->next);
+    }
 }
 
 /* Reverse elements in queue */
@@ -177,7 +197,31 @@ void q_reverseK(struct list_head *head, int k)
 }
 
 /* Sort elements of queue in ascending order */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    /* Bubble sort */
+    struct list_head *curr;
+    struct list_head *next = NULL;
+    for (int i = q_size(head); i > 0; i--) {
+        curr = head->next;
+        next = curr->next;
+        while (next != head) {
+            element_t *curr_el = list_entry(curr, element_t, list);
+            element_t *next_el = list_entry(next, element_t, list);
+            if (strcmp(curr_el->value, next_el->value) > 0) {
+                node_swap(head, curr, next);
+                next = curr->next;
+                continue;
+            }
+
+            curr = curr->next;
+            next = curr->next;
+        }
+    }
+}
 
 /* Remove every node which has a node with a strictly greater value anywhere to
  * the right side of it */
